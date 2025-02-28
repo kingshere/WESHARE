@@ -35,7 +35,7 @@ const DownloadPage: React.FC = () => {
   };
 
   return (
-    <Paper elevation={3} style={{ padding: '20px', maxWidth: '600px', margin: '20px auto' }}>
+    <Paper elevation={3} style={{ padding: '20px', margin: '20px 0' }}>
       <Typography variant="h5" gutterBottom>
         Download Files
       </Typography>

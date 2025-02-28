@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import {
   Paper,
   Typography,
@@ -17,11 +18,11 @@ const UploadPage: React.FC = () => {
   const [progress, setProgress] = useState<number>(0);
   const [shareLink, setShareLink] = useState<string>('');
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      setFiles(Array.from(event.target.files));
-    }
-  };
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setFiles(acceptedFiles);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleUpload = async () => {
     if (files.length === 0) return;
@@ -50,31 +51,47 @@ const UploadPage: React.FC = () => {
   };
 
   return (
-    <Paper elevation={3} style={{ padding: '20px', maxWidth: '600px', margin: '20px auto' }}>
+    <Paper elevation={3} style={{ padding: '20px', margin: '20px 0' }}>
       <Typography variant="h5" gutterBottom>
         Upload Files to WeShare
       </Typography>
-      <Button variant="contained" component="label" sx={{ mb: 2 }}>
-        Select Files
-        <input type="file" multiple hidden onChange={handleFileChange} />
-      </Button>
+      <div {...getRootProps()} style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}>
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <Typography>Drop the files here...</Typography>
+        ) : (
+          <Typography>Drag 'n' drop some files here, or click to select files</Typography>
+        )}
+      </div>
       <Button
         variant="contained"
         color="primary"
         onClick={handleUpload}
         disabled={uploading || files.length === 0}
-        sx={{ ml: 2 }}
+        sx={{ mt: 2 }}
       >
         Upload
       </Button>
       {files.length > 0 && (
-        <List dense>
-          {files.map((file, index) => (
-            <ListItem key={index}>
-              <ListItemText primary={file.name} />
-            </ListItem>
-          ))}
-        </List>
+        <div style={{ marginTop: '20px' }}>
+          <Typography variant="h6">Selected Files:</Typography>
+          <List dense>
+            {files.map((file, index) => (
+              <ListItem key={index}>
+                {file.type.startsWith('image/') ? (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '10px' }}
+                  />
+                ) : (
+                  <Typography variant="body2">{file.name}</Typography>
+                )}
+                <ListItemText primary={file.name} />
+              </ListItem>
+            ))}
+          </List>
+        </div>
       )}
       {uploading && (
         <LinearProgress variant="determinate" value={progress} sx={{ mt: 2 }} />
