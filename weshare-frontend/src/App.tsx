@@ -1,9 +1,9 @@
 import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme'; // Adjust the path if necessary
+import theme from './theme';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import UploadPage from './components/Upload/UploadPage'; // Example component
-import DownloadPage from './components/Download/DownloadPage'; // Example component
+import UploadPage from './components/Upload/UploadPage';
+import DownloadPage from './components/Download/DownloadPage';
 
 const App: React.FC = () => {
   return (

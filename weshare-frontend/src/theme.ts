@@ -29,7 +29,7 @@ const theme = createTheme({
   },
   // Typography settings
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', // Clean, modern font
+    fontFamily: '"Roboto", sans-serif', // Clean, modern font
     h1: {
       fontSize: '2.5rem',
       fontWeight: 500,
