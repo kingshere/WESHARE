@@ -10,20 +10,32 @@ import {
   ListItemText,
 } from '@mui/material';
 import axios from 'axios';
-import { UploadResponse } from '../../types';
+
+// Define the response type for the upload API
+interface UploadResponse {
+  id: string;
+}
 
 const UploadPage: React.FC = () => {
-  const [files, setFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [progress, setProgress] = useState<number>(0);
-  const [shareLink, setShareLink] = useState<string>('');
+  // State definitions
+  const [files, setFiles] = useState<File[]>([]); // List of selected files
+  const [uploading, setUploading] = useState<boolean>(false); // Upload status
+  const [progress, setProgress] = useState<number>(0); // Upload progress
+  const [shareLink, setShareLink] = useState<string>(''); // Generated share link
 
+  // Handle file drops and selections
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFiles(acceptedFiles);
+    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]); // Append new files
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  // Remove a specific file by index
+  const removeFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  // Handle file upload to the server
   const handleUpload = async () => {
     if (files.length === 0) return;
     setUploading(true);
@@ -55,7 +67,11 @@ const UploadPage: React.FC = () => {
       <Typography variant="h5" gutterBottom>
         Upload Files to WeShare
       </Typography>
-      <div {...getRootProps()} style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}>
+      {/* Dropzone area */}
+      <div
+        {...getRootProps()}
+        style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}
+      >
         <input {...getInputProps()} />
         {isDragActive ? (
           <Typography>Drop the files here...</Typography>
@@ -63,6 +79,40 @@ const UploadPage: React.FC = () => {
           <Typography>Drag 'n' drop some files here, or click to select files</Typography>
         )}
       </div>
+      {/* File list with remove buttons */}
+      {files.length > 0 && (
+        <div style={{ marginTop: '20px' }}>
+          <Button onClick={() => setFiles([])} disabled={uploading}>
+            Clear All
+          </Button>
+          <List dense>
+            {files.map((file, index) => (
+              <ListItem
+                key={index}
+                secondaryAction={
+                  <Button
+                    
+                    onClick={() => removeFile(index)}
+                    disabled={uploading}
+                  >
+                    Remove
+                  </Button>
+                }
+              >
+                {file.type.startsWith('image/') && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '10px' }}
+                  />
+                )}
+                <ListItemText primary={file.name} />
+              </ListItem>
+            ))}
+          </List>
+        </div>
+      )}
+      {/* Upload button */}
       <Button
         variant="contained"
         color="primary"
@@ -72,30 +122,11 @@ const UploadPage: React.FC = () => {
       >
         Upload
       </Button>
-      {files.length > 0 && (
-        <div style={{ marginTop: '20px' }}>
-          <Typography variant="h6">Selected Files:</Typography>
-          <List dense>
-            {files.map((file, index) => (
-              <ListItem key={index}>
-                {file.type.startsWith('image/') ? (
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                    style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '10px' }}
-                  />
-                ) : (
-                  <Typography variant="body2">{file.name}</Typography>
-                )}
-                <ListItemText primary={file.name} />
-              </ListItem>
-            ))}
-          </List>
-        </div>
-      )}
+      {/* Progress bar */}
       {uploading && (
         <LinearProgress variant="determinate" value={progress} sx={{ mt: 2 }} />
       )}
+      {/* Share link */}
       {shareLink && (
         <Typography variant="body1" sx={{ mt: 2 }}>
           Share Link:{' '}
