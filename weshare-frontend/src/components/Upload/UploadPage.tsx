@@ -34,6 +34,8 @@ const UploadPage: React.FC = () => {
   const removeFile = (index: number) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
+  // Function to determine if a file is an image based on its extension
+  const isImage = (file: File) => /\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(file.name);
 
   // Handle file upload to the server
   const handleUpload = async () => {
@@ -117,7 +119,7 @@ const UploadPage: React.FC = () => {
         variant="contained"
         color="primary"
         onClick={handleUpload}
-        disabled={uploading || files.length === 0}
+        disabled={uploading }
         sx={{ mt: 2 }}
       >
         Upload
@@ -140,3 +142,12 @@ const UploadPage: React.FC = () => {
 };
 
 export default UploadPage;
+/*    <Button
+variant="contained"
+color="primary"
+onClick={handleUpload}
+disabled={uploading || files.length === 0}
+sx={{ mt: 2 }}
+>
+Upload
+</Button>*/
