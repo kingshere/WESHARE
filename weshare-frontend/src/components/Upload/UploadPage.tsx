@@ -26,22 +26,18 @@ const UploadPage: React.FC = () => {
   const [recipientEmail, setRecipientEmail] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle file drops and selections
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  // Remove a specific file by index
   const removeFile = (index: number) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
-  // Function to determine if a file is an image based on its extension
   const isImage = (file: File) => /\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(file.name);
 
-  // Handle file upload to the server
   const handleUpload = async () => {
     if (files.length === 0) return;
     setUploading(true);
@@ -68,7 +64,6 @@ const UploadPage: React.FC = () => {
     }
   };
 
-  // Send share link via email
   const sendShareLinkViaEmail = async () => {
     if (!recipientEmail || !shareLink) return;
 
@@ -84,19 +79,16 @@ const UploadPage: React.FC = () => {
     }
   };
 
-  // Clear all files
   const handleClearAll = () => {
     setFiles([]);
   };
 
-  // Open file selection dialog
   const handleFileSelect = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // Handle file change from input element
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
     if (selectedFiles) {
@@ -107,8 +99,8 @@ const UploadPage: React.FC = () => {
   return (
     <div>
       <Typography variant="h4">Upload Files to WeShare</Typography>
-      {/* Dropzone area */}
-      <Paper {...getRootProps()} style={{ padding: '20px' }}>
+      {/* Drag and drop area */}
+      <Paper {...getRootProps()} style={{ padding: '20px', width: '200px', height: '100px' }}>
         <input {...getInputProps()} />
         {isDragActive ? (
           <Typography>Drop the files here...</Typography>
@@ -117,6 +109,10 @@ const UploadPage: React.FC = () => {
             Drag 'n' drop some files here, or click to select files
           </Typography>
         )}
+      </Paper>
+
+      {/* Buttons Section */}
+      <div style={{ marginTop: '20px' }}>
         {/* Choose Files button */}
         <Button
           variant="contained"
@@ -133,35 +129,13 @@ const UploadPage: React.FC = () => {
           onChange={handleFileChange}
           style={{ display: 'none' }}
         />
-        {/* File list with remove buttons */}
-        {files.length > 0 && (
-          <List>
-            {files.map((file, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={file.name} />
-                <Button
-                  onClick={() => removeFile(index)}
-                  disabled={uploading}
-                >
-                  Remove
-                </Button>
-                {isImage(file) && (
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                    style={{ maxWidth: '100px', maxHeight: '100px' }}
-                  />
-                )}
-              </ListItem>
-            ))}
-          </List>
-        )}
         {/* Clear All button */}
         <Button
           variant="contained"
           color="secondary"
           onClick={handleClearAll}
           disabled={uploading}
+          style={{ marginLeft: '10px' }}
         >
           Clear All
         </Button>
@@ -171,20 +145,51 @@ const UploadPage: React.FC = () => {
           color="primary"
           onClick={handleUpload}
           disabled={uploading || files.length === 0}
+          style={{ marginLeft: '10px' }}
         >
           Upload
         </Button>
-        {/* Progress bar */}
-        {uploading && <LinearProgress variant="determinate" value={progress} />}
-        {/* Share link */}
-        {shareLink && (
-          <Typography>
-            Share Link:{' '}
-            <a href={shareLink} target="_blank" rel="noopener noreferrer">
-              {shareLink}
-            </a>
-          </Typography>
-        )}
+      </div>
+
+      {/* File list with remove buttons */}
+      {files.length > 0 && (
+        <List style={{ marginTop: '20px' }}>
+          {files.map((file, index) => (
+            <ListItem key={index}>
+              <ListItemText primary={file.name} />
+              <Button
+                onClick={() => removeFile(index)}
+                disabled={uploading}
+              >
+                Remove
+              </Button>
+              {isImage(file) && (
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  style={{ maxWidth: '100px', maxHeight: '100px' }}
+                />
+              )}
+            </ListItem>
+          ))}
+        </List>
+      )}
+
+      {/* Progress bar */}
+      {uploading && <LinearProgress variant="determinate" value={progress} />}
+
+      {/* Share link */}
+      {shareLink && (
+        <Typography style={{ marginTop: '20px' }}>
+          Share Link:{' '}
+          <a href={shareLink} target="_blank" rel="noopener noreferrer">
+            {shareLink}
+          </a>
+        </Typography>
+      )}
+
+      {/* Bottom Section */}
+      <div style={{ marginTop: '50px' }}>
         {/* Email input field */}
         <TextField
           label="Recipient Email"
@@ -199,10 +204,11 @@ const UploadPage: React.FC = () => {
           color="primary"
           onClick={sendShareLinkViaEmail}
           disabled={!recipientEmail || !shareLink}
+          style={{ marginTop: '10px' }}
         >
           Send Share Link via Email
         </Button>
-      </Paper>
+      </div>
     </div>
   );
 };
