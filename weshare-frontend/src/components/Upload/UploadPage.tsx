@@ -12,13 +12,12 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-// Define the response type for the upload API
 interface UploadResponse {
   id: string;
+  link: string;
 }
 
 const UploadPage: React.FC = () => {
-  // State definitions
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -45,7 +44,7 @@ const UploadPage: React.FC = () => {
     files.forEach((file) => formData.append('files', file));
 
     try {
-      const response = await axios.post<UploadResponse>('/upload', formData, {
+      const response = await axios.post<UploadResponse>('/api/upload', formData, {
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentCompleted = Math.round(
@@ -56,7 +55,7 @@ const UploadPage: React.FC = () => {
         },
       });
       const uploadId = response.data.id;
-      setShareLink(`${window.location.origin}/download/${uploadId}`);
+      setShareLink(response.data.link);
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -68,7 +67,7 @@ const UploadPage: React.FC = () => {
     if (!recipientEmail || !shareLink) return;
 
     try {
-      await axios.post('/send-email', {
+      await axios.post('/api/send-email', {
         email: recipientEmail,
         link: shareLink,
       });
